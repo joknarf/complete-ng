@@ -374,7 +374,7 @@ _complete-ng() {
 }
 
 complete-ng() {
-  local fn func cmd
+  local fn func cmd exc="^(_complete-ng|${COMPLETE_NG_EXCLUDE// /|})$"
   for i in "$@";do
     [ "$fn" ] && { func="$1"; shift; set -- "$@" _complete-ng; unset fn; continue; }
     [ "$1" = "-F" ] && fn=1
@@ -382,7 +382,7 @@ complete-ng() {
     set -- "$@" "$1"
     shift
   done
-  [ "$func" = _complete-ng ] && return
+  [[ $func =~ $exc ]] && return
   [ "$func" ] && eval "_compfunc_${cmd//[^a-zA-Z0-9_]/_}=$func"
   \complete "$@"
 }
@@ -395,6 +395,7 @@ _complete-ng_init() {
   \complete -F _complete-ng ''
 }
 
+: ${COMPLETE_NG_EXCLUDE:=_cdhist_cd}
 unalias complete
 type cdcomplete >/dev/null 2>&1 && cdcomplete
 _complete-ng_init
