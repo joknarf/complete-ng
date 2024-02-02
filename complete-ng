@@ -407,7 +407,7 @@ complete-ng() {
     local c
     for c in $cmd;do
       c=${c//"'"/}
-      eval "_compfunc_${cmd//[^a-zA-Z0-9_]/_}=$func"
+      eval "_compfunc_${c//[^a-zA-Z0-9_]/_}=$func"
     done
   }
   \complete "$@"
