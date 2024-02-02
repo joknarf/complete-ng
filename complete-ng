@@ -3,6 +3,10 @@
 
 ## selector : from https://github.com/joknarf/selector
 # no proper way to restore tty on trap
+
+: ${SELECTOR_FOLDER_ICON:=} # 🖿 🗀 📁 📂 🗋 🖿 🖹          
+: ${SELECTOR_FILE_ICON:=} #  🗎           
+
 function _ctrl_c
 {
   [ "$ZSH_VERSION" ] && {
@@ -45,8 +49,8 @@ function _showmenu
     icon=''
     [ "$_sel_option" = filenames ] && {
       [[ "$item" = \~/* ]] && path="$HOME/"${item#\~/} || path="$item"
-      if [ -d "$path" ] ;then icon=' '  # 🖿 🗀 📁 📂 🗋 🖿 🖹          
-      else [ -e "$path" ] && icon=' ';fi #  🗎           
+      if [ -d "$path" ] ;then icon="$SELECTOR_FOLDER_ICON "
+      else [ -e "$path" ] && icon="$SELECTOR_FILE_ICON ";fi
     }
     if [[ $nsel == "$i" ]]; then 
       printf "$sel" $i "$icon$item"
