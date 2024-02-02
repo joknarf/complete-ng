@@ -45,8 +45,8 @@ function _showmenu
     icon=''
     [ "$_sel_option" = filenames ] && {
       [[ "$item" = \~/* ]] && path="$HOME/"${item#\~/} || path="$item"
-      if [ -d "$path" ] ;then icon='🖿 '  #🗀📁📂🗋🖿🖹
-      else [ -e "$path" ] && icon='🗎 ';fi
+      if [ -d "$path" ] ;then icon=' '  # 🖿 🗀 📁 📂 🗋 🖿 🖹          
+      else [ -e "$path" ] && icon=' ';fi #  🗎           
     }
     if [[ $nsel == "$i" ]]; then 
       printf "$sel" $i "$icon$item"
