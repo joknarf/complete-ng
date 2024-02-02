@@ -12,7 +12,6 @@ bash completion nextgen
 ```
 source ./complete-ng
 ```
-* need to be sourced after bash_completion 
 
 ## example
 
