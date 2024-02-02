@@ -398,7 +398,7 @@ _complete-ng_init() {
 }
 
 : ${COMPLETE_NG_EXCLUDE:=_cdhist_cd}
-unalias complete
+unalias complete 2>/dev/null
 type cdcomplete >/dev/null 2>&1 && cdcomplete
 _complete-ng_init
 alias complete=complete-ng
