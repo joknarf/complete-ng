@@ -391,7 +391,16 @@ complete-ng() {
 }
 
 _complete-ng_init() {
-  source <(\complete |sed -n -e '/-F _complete-ng /d' -e 's/^complete/complete-ng/' -e '/-F/p')
+  local IFS
+  if cat <(printf %s) 2>/dev/null ;then
+    source <(\complete |sed -n -e '/-F _complete-ng /d' -e 's/^complete/complete-ng/' -e '/-F/p')
+  else # fail process substitution (ish)
+    IFS='\n'
+    for i in $(\complete |sed -n -e '/-F _complete-ng /d' -e 's/^complete/complete-ng/' -e '/-F/p') ;do
+      IFS=' \t\n';$i
+    done
+    IFS=' \t\n'
+  fi
   \complete -F _complete-ng -D 2>/dev/null
   \complete -F _complete-ng -I 2>/dev/null
   \complete -F _complete-ng -E 2>/dev/null
