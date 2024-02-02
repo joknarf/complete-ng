@@ -376,13 +376,15 @@ _complete-ng() {
 complete-ng() {
   local fn func cmd exc="^(_complete-ng|${COMPLETE_NG_EXCLUDE// /|})$"
   for i in "$@";do
-    [ "$fn" ] && { func="$1"; shift; set -- "$@" _complete-ng; unset fn; continue; }
+    [ "$fn" ] && {
+      unset fn
+      ! [[ $1 =~ $exc ]] && { func="$1"; shift; set -- "$@" _complete-ng; continue; }
+    }
     [ "$1" = "-F" ] && fn=1
     cmd="$1"
     set -- "$@" "$1"
     shift
   done
-  [[ $func =~ $exc ]] && return
   [ "$func" ] && eval "_compfunc_${cmd//[^a-zA-Z0-9_]/_}=$func"
   \complete "$@"
 }
