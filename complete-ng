@@ -24,7 +24,7 @@ function _menuprompt
 
 function _showmenu 
 {
-  typeset prompt="$1" nsel="$2" nbitems="$3" filter="$4" item i min max sel lines
+  typeset prompt="$1" nsel="$2" nbitems="$3" filter="$4" item i min max sel lines icon path
 
   _menuprompt "$prompt" "$nbitems" "$filter"
   w=$nbitems;w=${#w}
@@ -42,10 +42,15 @@ function _showmenu
     item="${_aitems[$i]}"
     [[ $i -ge $min ]] || continue
     [[ $i -le $max ]] || break
+    icon=''
+    [ "$_sel_option" = filenames ] && {
+      [[ "$item" = \~/* ]] && path="$HOME/"${item#\~/} || path="$item"
+      [ -d "$path" ] && icon='🖿 ' || icon='🗎 ' #🗀📁📂🗋🖿🖹
+    }
     if [[ $nsel == "$i" ]]; then 
-      printf "$sel" $i "$item"
+      printf "$sel" $i "$icon$item"
     else
-      printf "\n\e[32m %${w}s  \e[94m%s\e[0m" $i "$item"
+      printf "\n\e[32m %${w}s  \e[94m%s\e[0m" $i "$icon$item"
     fi
     tput el #clear end of line
   done
@@ -233,6 +238,7 @@ function selector
   _autofilter=y
   _powerline=y
   _keyfunc=""
+  _sel_option=""
   while [ $# -gt 0 ]; do
     case "$1" in
       -p|--prompt)
@@ -259,6 +265,9 @@ function selector
       -k|--keyfunc)
         [ "$2" ] && _keyfunc="$2" || return 1
         ;;
+      -o|--option)
+        [ "$2" ] && _sel_option="$2" || return 1
+        ;;
       *)
         printf "usage: selector [-p <prompt>] -i <items>|-f <itemfile> [-P <y|n>] [-k <keyfunc>]\n"
         printf "args :\n"
@@ -279,9 +288,7 @@ function selector
   LC_ALL=$__selector_lc _domenu "$prompt" "$filter" >&2
   trap - INT
   stty $_stty_ori 2>/dev/null
-  unset _items
-  unset _maxlines
-  unset _autofilter
+  unset _items _maxlines _autofilter _keyfunc _sel_option
   [ "$selected" ] && printf "%s" "$selected" && return 0
   return 1
 }
@@ -366,7 +373,7 @@ _complete-ng() {
   [ ${#COMPREPLY[@]} -le 1 ] && return
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   printf "\n" >&2
-  COMPREPLY=( "$(selector -m 10 -k _complete-ng_key -i "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" -F "$word")" )
+  COMPREPLY=( "$(selector -m 10 -k _complete-ng_key -o filenames -i "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" -F "$word")" )
   #kill -WINCH $$ # force redraw prompt
   tput cuu1
   tput cuf $((col-1)) >&2
