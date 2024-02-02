@@ -395,6 +395,8 @@ _complete-ng_init() {
   \complete -F _complete-ng ''
 }
 
-alias complete=complete-ng
+unalias complete
 type cdcomplete >/dev/null 2>&1 && cdcomplete
 _complete-ng_init
+alias complete=complete-ng
+
