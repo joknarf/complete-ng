@@ -14,6 +14,10 @@ source ./complete-ng
 ```
 * need to be sourced after bash_completion 
 
+## example
+
+![complete-ng](https://github.com/joknarf/complete-ng/assets/10117818/e8993060-4134-4ab5-8a1f-c2ea6d0d5696)
+
 ## keys in menu
 
 |key                             | action                                                |
