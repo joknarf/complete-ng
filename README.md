@@ -17,6 +17,16 @@ source ./complete-ng
 
 ![complete-ng](https://github.com/joknarf/complete-ng/assets/10117818/e8993060-4134-4ab5-8a1f-c2ea6d0d5696)
 
+![complete-ng](https://github.com/joknarf/complete-ng/assets/10117818/27eadb7a-9caa-4d35-a30b-739cfa918e5d)
+
+## file/folder icons
+
+As depending to your terminal font, the icons may not render correctly, you can choose the icons you want using environment variables, here are some sample of dir/file icons, choose the ones fitting your terminal font (use nerd version of your font to have more choice):
+```
+SELECTOR_FOLDER_ICON='' # 🖿 🗀 📁 📂 🖿         
+SELECTOR_FILE_ICON=''   #  🗎            🗋 🖹  
+```
+
 ## keys in menu
 
 |key                             | action                                                |

@@ -4,8 +4,8 @@
 ## selector : from https://github.com/joknarf/selector
 # no proper way to restore tty on trap
 
-: ${SELECTOR_FOLDER_ICON:=} # 🖿 🗀 📁 📂 🗋 🖿 🖹          
-: ${SELECTOR_FILE_ICON:=} #  🗎           
+: ${SELECTOR_FOLDER_ICON:=} # 🖿 🗀 📁 📂 🖿         
+: ${SELECTOR_FILE_ICON:=} #  🗎            🗋 🖹  
 
 function _ctrl_c
 {
