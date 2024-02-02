@@ -382,13 +382,13 @@ complete-ng() {
     set -- "$@" "$1"
     shift
   done
-  [ "$func" = _complete_ng ] && return
+  [ "$func" = _complete-ng ] && return
   [ "$func" ] && eval "_compfunc_${cmd//[^a-zA-Z0-9_]/_}=$func"
   \complete "$@"
 }
 
 _complete-ng_init() {
-  source <(\complete |sed -e 's/^complete/complete-ng/')
+  source <(\complete |sed -n -e 's/^complete/complete-ng/' -e '/-F/p')
   \complete -F _complete-ng -D 2>/dev/null
   \complete -F _complete-ng -I 2>/dev/null
   \complete -F _complete-ng -E 2>/dev/null
