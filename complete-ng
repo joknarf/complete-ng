@@ -392,14 +392,12 @@ complete-ng() {
 
 _complete-ng_init() {
   local IFS
-  if cat <(printf %s) 2>/dev/null ;then
+  if cat <(printf %s) 2>/dev/null && [ "${BASH_VERSION%%.*}" -ge 4 ];then
     source <(\complete |sed -n -e '/-F _complete-ng /d' -e 's/^complete/complete-ng/' -e '/-F/p')
-  else # fail process substitution (ish)
-    IFS=$'\n'
-    for i in $(\complete |sed -n -e '/-F _complete-ng /d' -e 's/^complete/complete-ng/' -e '/-F/p') ;do
-      IFS=$' \t\n';$i
-    done
-    IFS=$' \t\n'
+  else # process substitution not working (ish/bash 3.2)
+    \complete |sed -n -e '/-F _complete-ng /d' -e 's/^complete/complete-ng/' -e '/-F/p' >/tmp/.complete-ng.tmp.$$
+    source /tmp/.complete-ng.tmp.$$
+    \rm -f /tmp/.complete-ng.tmp.$$
   fi
   \complete -F _complete-ng -D 2>/dev/null
   \complete -F _complete-ng -I 2>/dev/null
