@@ -345,7 +345,7 @@ _complete-ng_key() {
 
 _complete-ng() {
   local cmd="${COMP_WORDS[O]}" fn IFS opt="-f" word=""
-  [ "$COMP_CWORD" -ge 0 ] && word="${COMP_WORDS[$COMP_CWORD]}" || word="./"
+  [ "$COMP_CWORD" -ge 0 ] && word="${COMP_WORDS[$COMP_CWORD]}"
   fn=$(eval printf %s '$'_compfunc_"${cmd//[^a-zA-Z0-9_]/_}")
   [ "$fn" ] || { cmd="${cmd##*/}"; fn=$(eval printf %s '$'_compfunc_"${cmd//[^a-zA-Z0-9_]/_}"); }
   [ "$fn" ] || {
@@ -359,7 +359,8 @@ _complete-ng() {
   [ "$fn" ] && { $fn "$@"; } || {
     type compopt >/dev/null 2>&1 && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
-    [ "$COMP_CWORD" -le 0 ] && opt="-c"
+    [ "$COMP_CWORD" -le 0 ] && [ "$word" ] && opt="-c"
+    : ${word:=./}
     IFS=$'\n' COMPREPLY=( $(compgen $opt -- "$word") ) IFS=$' \t\n'; 
   }
   [ ${#COMPREPLY[@]} -le 1 ] && return
