@@ -381,7 +381,7 @@ _complete-ng() {
   [ ${#COMPREPLY[@]} -le 1 ] && return
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   printf "\n" >&2
-  type compopt &>/dev/null && [[ $(compopt) = *-o\ filename* ]] || selopt=''
+  type compopt &>/dev/null && { [[ $(compopt) = *-o\ filename* ]] || selopt=''; }
   COMPREPLY=( "$(selector -m 10 -k _complete-ng_key $selopt -i "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" -F "$word")" )
   #kill -WINCH $$ # force redraw prompt
   tput cuu1
