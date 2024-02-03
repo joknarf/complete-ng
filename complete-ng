@@ -339,6 +339,11 @@ _complete-ng_key() {
       _complete-ng_navigate "$item/.." || return 3
       return 0
     ;;
+    '²')
+      _items=$(printf "%s\n" "${_aitems[@]}"|egrep -v '^\.[^/]|/\.')
+      [ "$_items" ] || return 1
+      return 0
+    ;;
     'OR') # F3
       _force_nsel=$_nsel
       [ -r "$item" ] && [ -f "$item" ] || return 0
