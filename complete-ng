@@ -371,8 +371,8 @@ _complete-ng() {
     [ "$_compfunc__D" ] && {
         $_compfunc__D "$@" # _completion_loader
         \complete -F _complete-ng -I 2>/dev/null
-        eval $(complete -p "$cmd") # alias not necessary enable for bash completion loader
-        eval $(complete -p -E)
+        eval $(\complete -p "$cmd" 2>/dev/null) # alias not necessary enable for bash completion loader
+        eval $(\complete -p -E 2>/dev/null)
         fn=$(eval printf %s '$'_compfunc_"${cmd//[^a-zA-Z0-9_]/_}")
     }
   }
