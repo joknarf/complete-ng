@@ -4,8 +4,8 @@
 ## selector : from https://github.com/joknarf/selector
 # no proper way to restore tty on trap
 
-: ${SELECTOR_FOLDER_ICON:=} # 🖿 🗀 📁 📂 🖿         
-: ${SELECTOR_FILE_ICON:=} #  🗎            🗋 🖹  
+: ${SELECTOR_FOLDER_ICON:=} # 🖿 🗀 📁 📂 🖿            
+: ${SELECTOR_FILE_ICON:=} #  🗎            🗋 🖹      📄
 
 function _ctrl_c
 {
@@ -303,8 +303,8 @@ function selector
 }
 
 ## end selector
-unalias complete 2>/dev/null
-alias complete=complete-ng
+#unalias complete 2>/dev/null
+#alias complete=complete-ng
 
 _complete-ng_navigate() {
   local dir=$1 IFS
@@ -370,9 +370,6 @@ _complete-ng() {
   [ "$fn" ] || {
     [ "$_compfunc__D" ] && {
         $_compfunc__D "$@" # _completion_loader
-        \complete -F _complete-ng -I 2>/dev/null
-        eval $(\complete -p -E 2>/dev/null)
-        eval $(\complete -p "$cmd" 2>/dev/null) # alias not necessary enable for bash completion loader
         fn=$(eval printf %s '$'_compfunc_"${cmd//[^a-zA-Z0-9_]/_}")
     }
   }
@@ -395,7 +392,7 @@ _complete-ng() {
   #[ -d "${COMPREPLY[0]}" ] && COMPREPLY[0]="${COMPREPLY[0]/\//}/"
 }
 
-complete-ng() {
+complete() {
   local fn func cmd exc="^(_complete-ng|${COMPLETE_NG_EXCLUDE// /|})$"
   for i in "$@";do
     [ "$fn" ] && {
@@ -415,22 +412,22 @@ complete-ng() {
       eval "_compfunc_${c//[^a-zA-Z0-9_]/_}=$func"
     done
   }
-  \complete "$@"
+  builtin complete "$@"
 }
 
 _complete-ng_init() {
   local IFS
   if cat <(printf %s) 2>/dev/null && [ "${BASH_VERSION%%.*}" -ge 4 ];then
-    source <(\complete |sed -n -e '/-F _complete-ng /d' -e 's/^complete/complete-ng/' -e '/-F/p')
+    source <(builtin complete |sed -n -e '/-F _complete-ng /d' -e '/-F/p')
   else # process substitution not working (ish/bash 3.2)
-    \complete |sed -n -e '/-F _complete-ng /d' -e 's/^complete/complete-ng/' -e '/-F/p' >/tmp/.complete-ng.tmp.$$
+    builtin complete |sed -n -e '/-F _complete-ng /d' -e '/-F/p' >/tmp/.complete-ng.tmp.$$
     source /tmp/.complete-ng.tmp.$$
     \rm -f /tmp/.complete-ng.tmp.$$
   fi
-  \complete -F _complete-ng -D 2>/dev/null
-  \complete -F _complete-ng -I 2>/dev/null
-  \complete -F _complete-ng -E 2>/dev/null
-  \complete -F _complete-ng ''
+  builtin complete -F _complete-ng -D 2>/dev/null
+  builtin complete -F _complete-ng -I 2>/dev/null
+  builtin complete -F _complete-ng -E 2>/dev/null
+  builtin complete -F _complete-ng ''
 }
 
 : ${COMPLETE_NG_EXCLUDE:=_cdhist_cd}
