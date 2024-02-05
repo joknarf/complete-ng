@@ -400,15 +400,14 @@ complete() {
       ! [[ $1 =~ $exc ]] && { func="$1"; shift; set -- "$@" _complete-ng; continue; }
     }
     [ "$1" = "-F" ] && fn=1 && cmd=()
-    [ $1 = -- ] || cmd+=("$1")
+    [ "$1" = -- ] || cmd+=("$1")
     set -- "$@" "$1"
     shift
   done
-  [[ "$*" =~ -F\ [^\ ]*$ ]] && set -- "$@" "''" && cmd=("''")
+  [[ "$*" =~ -F\ [^\ ]*$ ]] && set -- "$@" "''" && cmd=( "" )
   [ "$func" ] && {
     local c
     for c in "${cmd[@]}";do
-      c=${c//"'"/}
       eval "_compfunc_${c//[^a-zA-Z0-9_]/_}=$func"
     done
   }
