@@ -411,6 +411,7 @@ complete() {
       eval "_compfunc_${c//[^a-zA-Z0-9_]/_}=$func"
     done
   }
+  unset _compfunc_
   builtin complete "$@"
 }
 
