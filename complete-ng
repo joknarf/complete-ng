@@ -384,11 +384,12 @@ _complete-ng() {
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   printf "\n" >&2
   type compopt &>/dev/null && { [[ $(compopt) = *-o\ filename* ]] || selopt=''; }
+  word="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
   COMPREPLY=( "$(selector -m 10 -k _complete-ng_key $selopt -i "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" -F "$word")" )
   #kill -WINCH $$ # force redraw prompt
   tput cuu1
   tput cuf $((col-1)) >&2
-  [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
+  [ ! "${COMPREPLY[0]}" ] && compopt -o nospace 2>/dev/null && COMPREPLY=( "$word" ) && return
   #[ -d "${COMPREPLY[0]}" ] && COMPREPLY[0]="${COMPREPLY[0]/\//}/"
 }
 
