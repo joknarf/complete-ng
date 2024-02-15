@@ -380,16 +380,25 @@ _complete-ng() {
     : ${word:=./}
     IFS=$'\n' COMPREPLY=( $(compgen $opt -- "$word") ) IFS=$' \t\n'; 
   }
-  [ ${#COMPREPLY[@]} -le 1 ] && return
+  [ ${#COMPREPLY[@]} = 1 ] && return
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   printf "\n" >&2
+  [ ${#COMPREPLY[@]} = 0 ] && {
+    printf 'Not found !\r'
+    sleep 0.2
+    tput el
+    tput cuu1
+    tput cuf $((col-1)) >&2
+    return
+  }
   type compopt &>/dev/null && { [[ $(compopt) = *-o\ filename* ]] || selopt=''; }
+  # longest common prefix
   word="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
   COMPREPLY=( "$(selector -m 10 -k _complete-ng_key $selopt -i "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" -F "$word")" )
   #kill -WINCH $$ # force redraw prompt
   tput cuu1
   tput cuf $((col-1)) >&2
-  [ ! "${COMPREPLY[0]}" ] && compopt -o nospace 2>/dev/null && COMPREPLY=( "$word" ) && return
+  [ ! "${COMPREPLY[0]}" ] && compopt +o filenames -o nospace 2>/dev/null && COMPREPLY=( "$word" ) && return
   #[ -d "${COMPREPLY[0]}" ] && COMPREPLY[0]="${COMPREPLY[0]/\//}/"
 }
 
