@@ -5,13 +5,20 @@ bash completion nextgen
 * browse directories inside the menu
 * view/edit files directly from the menu
 * single <kbd>tab</kbd> on command line displays choices
-* launch menu from empty command line with <tab> to browse files/directories
+* launch menu from empty command line with <kbd>Tab</kbd> to browse files/directories
+
+for a complete next-gen shell experience, see also these projects:
+* [nerdps1](https://github.com/joknarf/nerdps1) : auto-transportable dynamic PS1 prompt (you can see it in the demo)
+* [redo](https://github.com/joknarf/redo) : replacement of shell history command search (Ctrl+R or Esc+/) with interactive menu
+* [cdhist](https://github.com/joknarf/cdhist) : directory history navigation with arrows + interactive menu
 
 # usage
 
 ```
 source ./complete-ng
 ```
+
+
 
 ## example
 
