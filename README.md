@@ -9,7 +9,7 @@ bash completion nextgen
 
 for a complete next-gen shell experience, see also these projects:
 * [nerdps1](https://github.com/joknarf/nerdps1) : auto-transportable dynamic PS1 prompt (you can see it in the demo)
-* [redo](https://github.com/joknarf/redo) : replacement of shell history command search (<kbd>Ctrl>/kbd><kbd>+R</kbd> or <kbd>Esc</kbd>+<kbd>/</kbd>) with interactive menu
+* [redo](https://github.com/joknarf/redo) : replacement of shell history command search (<kbd>Ctrl</kbd><kbd>+R</kbd> or <kbd>Esc</kbd>+<kbd>/</kbd>) with interactive menu
 * [cdhist](https://github.com/joknarf/cdhist) : directory history navigation with arrows + interactive menu
 
 # usage
