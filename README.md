@@ -24,7 +24,7 @@ source ./complete-ng
 
 ![complete-ng](https://github.com/joknarf/complete-ng/assets/10117818/e8993060-4134-4ab5-8a1f-c2ea6d0d5696)
 
-![demo](https://github.com/joknarf/complete-ng/assets/10117818/724e1d1d-f8b0-4d6d-884f-1666c5904b65)
+![demo](https://github.com/joknarf/complete-ng/assets/10117818/44831cb1-ea69-4982-9852-e339a453e803)
 
 ## file/folder icons
 
