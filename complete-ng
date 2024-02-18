@@ -404,7 +404,6 @@ _complete-ng() {
     [ "$COMP_CWORD" = -1 ] && COMPREPLY=()
     return
   }
-  #[ -d "${COMPREPLY[0]}" ] && COMPREPLY[0]="${COMPREPLY[0]/\//}/"
 }
 
 complete() {
