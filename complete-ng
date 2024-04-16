@@ -420,7 +420,10 @@ complete() {
   done
   [[ "$*" =~ -F\ [^\ ]*$ ]] && set -- "$@" "''" && cmd=( "" )
   [ "$func" ] && {
-    eval "_compfunc_${cmd[-1]//[^a-zA-Z0-9_]/_}=$func"
+    local c
+    for c in "${cmd[@]}";do
+      eval "_compfunc_${c//[^a-zA-Z0-9_]/_}=$func"
+    done
   }
   unset _compfunc_
   builtin complete "$@"
