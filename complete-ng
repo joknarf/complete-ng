@@ -420,8 +420,10 @@ complete() {
   done
   [[ "$*" =~ -F\ [^\ ]*$ ]] && set -- "$@" "''" && cmd=( "" )
   [ "$func" ] && {
-    local c
+    local c skip
     for c in "${cmd[@]}";do
+      [ "$c" = -o ] && skip=1 && continue
+      [ "$skip" ] && skip="" && continue
       eval "_compfunc_${c//[^a-zA-Z0-9_]/_}=$func"
     done
   }
