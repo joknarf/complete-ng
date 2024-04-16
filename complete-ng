@@ -84,7 +84,7 @@ function _select
 
 function _items_split
 {
-  typeset filter="$1" item IFS
+  typeset filter="$1" item IFS="$IFS"
 
   [ "$filter" ] && {
     _nsel=""
@@ -307,14 +307,14 @@ function selector
 #alias complete=complete-ng
 
 _complete-ng_navigate() {
-  local dir=$1 IFS
+  local dir=$1 IFS="$IFS"
   [[ "$dir" = \~/* ]] && dir="$HOME/"${dir#\~/}
   [ -d "$dir" ] || return 1
   dir=$(\cd "$dir" >/dev/null 2>&1 && pwd) || return 1
   [[ $dir = $PWD* ]] && dir="${dir#$PWD}" && dir="${dir#/}"
   [ "$dir" ] && dir="${dir%/}/"
   [[ "$dir" = $HOME/* ]] && dir="~/${dir#$HOME/}"
-  IFS='\n' _items=( "$(compgen -f -- "$dir"|sort -u)" ) IFS=' \t\n'
+  IFS='\n' _items=( "$(compgen -f -- "$dir"|sort -u)" ) IFS=$' \t\n'
   [ "$_items" ] || _items="${dir%/}/"
   _items_ori="$_items"
   return 0
@@ -363,7 +363,7 @@ _complete-ng_key() {
 }
 
 _complete-ng() {
-  local cmd="${COMP_WORDS[O]}" fn IFS opt="-f" word="" selopt='-o filenames'
+  local cmd="${COMP_WORDS[O]}" fn IFS="$IFS" opt="-f" word="" selopt='-o filenames'
   [ "$COMP_CWORD" -ge 0 ] && word="${COMP_WORDS[$COMP_CWORD]}"
   fn=$(eval printf %s '$'_compfunc_"${cmd//[^a-zA-Z0-9_]/_}")
   [ "$fn" ] || { cmd="${cmd##*/}"; fn=$(eval printf %s '$'_compfunc_"${cmd//[^a-zA-Z0-9_]/_}"); }
@@ -407,30 +407,26 @@ _complete-ng() {
 }
 
 complete() {
-  local fn func cmd exc="^(_complete-ng|${COMPLETE_NG_EXCLUDE// /|})$"
-  for i in "$@";do
+  local fn func cmd exc="^(_complete-ng|${COMPLETE_NG_EXCLUDE// /|})$" _i
+  for _i in "$@";do
     [ "$fn" ] && {
       unset fn
       ! [[ $1 =~ $exc ]] && { func="$1"; shift; set -- "$@" _complete-ng; continue; }
     }
-    [ "$1" = "-F" ] && fn=1 && cmd=()
     [ "$1" = -- ] || cmd+=("$1")
+    [ "$1" = "-F" ] && fn=1 && cmd=()
     set -- "$@" "$1"
     shift
   done
   [[ "$*" =~ -F\ [^\ ]*$ ]] && set -- "$@" "''" && cmd=( "" )
   [ "$func" ] && {
-    local c
-    for c in "${cmd[@]}";do
-      eval "_compfunc_${c//[^a-zA-Z0-9_]/_}=$func"
-    done
+    eval "_compfunc_${cmd[-1]//[^a-zA-Z0-9_]/_}=$func"
   }
   unset _compfunc_
   builtin complete "$@"
 }
 
 _complete-ng_init() {
-  local IFS
   if cat <(printf %s) 2>/dev/null && [ "${BASH_VERSION%%.*}" -ge 4 ];then
     source <(builtin complete |sed -n -e '/-F _complete-ng /d' -e '/-F/p')
   else # process substitution not working (ish/bash 3.2)
