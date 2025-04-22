@@ -400,7 +400,7 @@ _complete-ng() {
   tput cuf $((col-1)) >&2 
   [ ! "${COMPREPLY[0]}" ] && {
     compopt +o filenames -o nospace 2>/dev/null
-    COMPREPLY=( "$word" )
+    COMPREPLY=( "${word/\\$/$}" )
     [ "$COMP_CWORD" = -1 ] && COMPREPLY=()
     return
   }
