@@ -389,7 +389,7 @@ _complete-ng() {
     tput el
     tput cuu1
     tput cuf $((col-1)) >&2
-    return
+    return 124
   }
   type compopt &>/dev/null && { [[ $(compopt) = *-o\ filename* ]] || selopt=''; }
   # longest common prefix
@@ -400,12 +400,16 @@ _complete-ng() {
   tput cuf $((col-1)) >&2
   [ ! "${COMPREPLY[0]}" ] && {
     compopt +o filenames -o nospace 2>/dev/null
-    COMPREPLY=( "${word/\\$/$}" )
-    [ "$COMP_CWORD" = -1 ] && COMPREPLY=()
-    return 124
+    [ "${BASH_VERSION%%.*}" -ge 5 ] && {
+      COMPREPLY=()
+      return 124;
+    } || {
+      COMPREPLY=( " $word" )
+      [ "$COMP_CWORD" = -1 ] && COMPREPLY=()
+      return 0;
+    }
   }
   COMPREPLY[0]="${COMPREPLY[0]//\\$/$}"
-
 }
 
 complete() {
