@@ -397,7 +397,8 @@ _complete-ng() {
   COMPREPLY=( "$(selector -m 10 -k _complete-ng_key $selopt -i "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" -F "$word")" )
   #kill -WINCH $$ # force redraw prompt
   tput cuu1
-  tput cuf $((col-1)) >&2 
+  tput cuf $((col-1)) >&2
+  COMPREPLY[0]="${COMPREPLY[0]//\\$/$}"
   [ ! "${COMPREPLY[0]}" ] && {
     compopt +o filenames -o nospace 2>/dev/null
     COMPREPLY=( "${word/\\$/$}" )
