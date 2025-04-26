@@ -363,7 +363,7 @@ _complete-ng_key() {
 }
 
 _complete-ng() {
-  local cmd="${COMP_WORDS[O]}" fn IFS="$IFS" opt="-f" word="" selopt='-o filenames'
+  local cmd="${COMP_WORDS[O]}" fn IFS="$IFS" opt="-f" word="" selopt='-o filenames' longword
   [ "$COMP_CWORD" -ge 0 ] && word="${COMP_WORDS[$COMP_CWORD]}"
   fn=$(eval printf %s '$'_compfunc_"${cmd//[^a-zA-Z0-9_]/_}")
   [ "$fn" ] || { cmd="${cmd##*/}"; fn=$(eval printf %s '$'_compfunc_"${cmd//[^a-zA-Z0-9_]/_}"); }
@@ -393,23 +393,23 @@ _complete-ng() {
   }
   type compopt &>/dev/null && { [[ $(compopt) = *-o\ filename* ]] || selopt=''; }
   # longest common prefix
-  word="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
-  COMPREPLY=( "$(selector -m 10 -k _complete-ng_key $selopt -i "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" -F "$word")" )
+  longword="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
+  COMPREPLY=( "$(selector -m 10 -k _complete-ng_key $selopt -i "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" -F "$longword")" )
   #kill -WINCH $$ # force redraw prompt
   tput cuu1
   tput cuf $((col-1)) >&2
   [ ! "${COMPREPLY[0]}" ] && {
     compopt +o filenames -o nospace 2>/dev/null
-    [ "${BASH_VERSION%%.*}" -ge 5 ] && {
-      COMPREPLY=()
-      return 1 #  (124 causes retry deafult completion)
-    } || {
-      COMPREPLY=( " $word" )
-      [ "$COMP_CWORD" = -1 ] && COMPREPLY=()
-      return 0
-    }
+    [ "$word" != "$longword" ] && COMPREPLY=( "$longword" ) && return 0
+    # bash 5+ : COMPREPLY must be empty else next tab completion will be COMP_TYPE=63 and COMPREPLY will be ignored
+    COMPREPLY=()
+    [ "${BASH_VERSION%%.*}" -ge 5 ] && return 1
+    # bash <5 : COMPREPLY must change else next tab completion will be COMP_TYPE=63 and COMPREPLY will be ignored
+    COMPREPLY=( " $word" )
+    [ "$COMP_CWORD" = -1 ] && COMPREPLY=()
+    return 0
   }
-  COMPREPLY[0]="${COMPREPLY[0]//\\$/$}"
+  #COMPREPLY[0]="${COMPREPLY[0]//\\$/$}"
 }
 
 complete() {
