@@ -107,7 +107,7 @@ function _readkey
   [ "$key" = $'\x1b' ] && key="" && while true
   do
     k=""
-    read -rs${o}1 -t $tmout k 2>/dev/null
+    LC_NUMERIC=C read -rs${o}1 -t $tmout k 2>/dev/null # LC_NUMERIC=C for old ksh
     [ $? = 1 ] && [ "$BASH" ] && read -rs${o}1 -t 1 k # old bash
     [ ! "$k" ] && key=${key:-$'\x1b'} && break
     key+="$k"
@@ -405,8 +405,7 @@ _complete-ng() {
     COMPREPLY=()
     [ "${BASH_VERSION%%.*}" -ge 5 ] && return 1
     # bash <5 : COMPREPLY must change else next tab completion will be COMP_TYPE=63 and COMPREPLY will be ignored
-    COMPREPLY=( " $word" )
-    [ "$COMP_CWORD" = -1 ] && COMPREPLY=()
+    [ "${BASH_VERSION%%.*}" = 4 ] && COMPREPLY=( " $word" ) || COMPREPLY=( "${COMP_WORDS[$COMP_CWORD]}%" )
     return 0
   }
   #COMPREPLY[0]="${COMPREPLY[0]//\\$/$}"
