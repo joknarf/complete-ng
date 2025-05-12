@@ -1,21 +1,26 @@
 # complete-ng
-bash completion nextgen
+bash/zsh completion nextgen
 
-* replace bash completion multiple choices output by interactive selector menu
+* replace bash/zsh completion multiple choices output by interactive selector menu
 * browse directories inside the menu
 * view/edit files directly from the menu
 * single <kbd>tab</kbd> on command line displays choices
 * launch menu from empty command line with <kbd>Tab</kbd> to browse files/directories
 
-for a complete next-gen shell experience, see also these projects:
-* [nerdps1](https://github.com/joknarf/nerdps1) : auto-transportable dynamic PS1 prompt (you can see it in the demo)
-* [redo](https://github.com/joknarf/redo) : replacement of shell history command search (<kbd>Ctrl</kbd>+<kbd>R</kbd> or <kbd>Esc</kbd>+<kbd>/</kbd>) with interactive menu
-* [cdhist](https://github.com/joknarf/cdhist) : directory history navigation with arrows + interactive menu
+for a complete next-gen shell experience, see also this project:
+* [joknarf/shell-ng](https://github.com/joknarf/shell-ng):
+  * auto-transportable dynamic PS1 prompt (you can see it in the demo)
+  * completion nextgen (this plugin)
+  * replacement of shell history command search (<kbd>Ctrl</kbd>+<kbd>R</kbd> or <kbd>Esc</kbd>+<kbd>/</kbd>) with interactive menu
+  *  directory history navigation with arrows + interactive menu
 
 # usage
 
 ```
-source ./complete-ng
+git clone https://github.com/joknarf/complete-ng
+source complete-ng/complete-ng.plugin.bash
+or
+source complete-ng/complete-ng.plugin.zsh
 ```
 
 
