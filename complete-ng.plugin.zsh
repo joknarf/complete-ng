@@ -219,9 +219,11 @@ _complete_ng_selector() {
     items="$(printf %s "$all_lines"|sed -e "s/$_COMPLETE_NG_SEP.*//" -e "s/[\\']//g")"
     selected="$(selector -m 10 -k _complete-ng_key -i "$items" -F "$PREFIX" -o filenames)"
     code="$?"
-    s="${selected#${PREFIX%/*}/}"
+    s="${selected}"
+    [ "$PREFIX" ] && s="${selected#${PREFIX%/*}/}"
     s="${s%/}"
     s="$(printf '%q' "$(printf '%q' "$s")")"
+    s="${s/#\\\\~\//~/}"	
     selected="$(printf '%q' "$selected")"
     [ "$selected" ] && printf '%s' "$selected$_COMPLETE_NG_SEP$s${_COMPLETE_NG_SEP}1$_COMPLETE_NG_SEP$selected$_COMPLETE_NG_SPACE_SEP"
     tput cuu1 >/dev/tty
@@ -314,11 +316,11 @@ _complete_ng_compadd() {
     builtin compadd $__no_matching -a __hits
     local __code="$?"
     __flags="${(j..)__flags//[ak-]}"
-    if [ -z "${__optskv[(i)-U]}" ]; then
+    if [ -z "${__optskv[(i)-U]}" ] && [[ -n "$__filenames" ]]; then
         # -U ignores $IPREFIX so add it to -i
-        # FJO no -i as giving it in value
-        #__ipre[2]="${IPREFIX}${__ipre[2]}"
-        #__ipre=( -i "${__ipre[2]}" )
+        # FJO only filenames
+        __ipre[2]="${IPREFIX}${__ipre[2]}"
+        __ipre=( -i "${__ipre[2]}" )
         IPREFIX=
     fi
     local compadd_args="$(printf '%q ' PREFIX="$PREFIX" IPREFIX="$IPREFIX" SUFFIX="$SUFFIX" ISUFFIX="$ISUFFIX" compadd ${__flags:+-$__flags} "${__opts[@]}" "${__ipre[@]}" "${__apre[@]}" "${__hpre[@]}" "${__hsuf[@]}" "${__asuf[@]}" "${__isuf[@]}" -U)"
@@ -335,7 +337,6 @@ _complete_ng_compadd() {
     #     suffix+=}
     # fi
     suffix=""
-
     local i
     for ((i = 1; i <= $#__hits; i++)); do
         # actual match
@@ -355,15 +356,16 @@ _complete_ng_compadd() {
         if [[ -n "$__filenames" && -n "$__show_str" && -d "${file_prefix}/${__show_str}" ]]; then
             __show_str+=/
             __suffix+=/
+            # prefix="${file_prefix}"
         fi
 
-        if [[ -z "$__disp_str" || "$__disp_str" == "$__show_str"* ]]; then
-            # remove prefix from display string
-            __disp_str="${__disp_str:${#__show_str}}"
-        else
-            # display string does not match, clear it
-            __show_str=
-        fi
+        # if [[ -z "$__disp_str" || "$__disp_str" == "$__show_str"* ]]; then
+        #     # remove prefix from display string
+        #     __disp_str="${__disp_str:${#__show_str}}"
+        # else
+        #     # display string does not match, clear it
+        #     __show_str=
+        # fi
 
         if [[ "$__show_str" =~ [^[:print:]] ]]; then
             __show_str="${(q)__show_str}"
