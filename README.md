@@ -14,7 +14,7 @@ for a complete next-gen shell experience, see also this project:
   * replacement of shell history command search (<kbd>Ctrl</kbd>+<kbd>R</kbd> or <kbd>Esc</kbd>+<kbd>/</kbd>) with interactive menu
   *  directory history navigation with arrows + interactive menu
 
-# usage
+## usage
 
 ```
 git clone https://github.com/joknarf/complete-ng
