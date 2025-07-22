@@ -11,7 +11,7 @@ for a complete next-gen shell experience, see also this project:
 * [joknarf/shell-ng](https://github.com/joknarf/shell-ng):
   * auto-transportable dynamic PS1 prompt (you can see it in the demo)
   * completion nextgen (this plugin)
-  * replacement of shell history command search (<kbd>Ctrl</kbd>+<kbd>R</kbd> or <kbd>Esc</kbd>+<kbd>/</kbd>) with interactive menu
+  * replacement of shell history command search (<kbd>Ctrl</kbd><kbd>R</kbd> or <kbd>Esc</kbd><kbd>/</kbd>) with interactive menu
   *  directory history navigation with arrows + interactive menu
 
 ## usage
@@ -51,9 +51,9 @@ SELECTOR_FILE_ICON=''   #  🗎           �
 |<kbd>⇦</kbd>                    | browse parent directory                               |
 |<kbd>F3</kbd>                   | view file using PAGER (or less)                       |
 |<kbd>F4</kbd>                   | edit file usint EDITOR (or vi)                        |
-|<kbd>Shift</kbd>+<kbd>⇩</kbd>/<kbd>PgUp</kbd>/<kbd>Ctl</kbd>+<kbd>F</kbd>| next page    |
-|<kbd>Shift</kbd>+<kbd>⇧</kbd>/<kbd>PgDn</kbd>/<kbd>Ctl</kbd>+<kbd>B</kbd>| previous page|
+|<kbd>Shift</kbd><kbd>⇩</kbd>/<kbd>PgUp</kbd>/<kbd>Ctl</kbd><kbd>F</kbd>| next page      |
+|<kbd>Shift</kbd><kbd>⇧</kbd>/<kbd>PgDn</kbd>/<kbd>Ctl</kbd><kbd>B</kbd>| previous page  |
 |<kbd>Esc</kbd>                  | exit                                                  |
-|<kbd>Ctrl</kbd>+<kbd>A</kbd>    | use all screen to display menu                        |
+|<kbd>Ctrl</kbd><kbd>A</kbd>     | use all screen to display menu                        |
 |<kbd>Enter</kbd>/<kbd>Tab</kbd> | put selected item on command line                     |
 
