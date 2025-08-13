@@ -6,7 +6,7 @@ bash/zsh completion nextgen
 * replace bash/zsh completion multiple choices output by interactive selector menu
 * browse directories inside the menu
 * view/edit files directly from the menu
-* single <kbd>tab</kbd> on command line displays choices
+* single <kbd>Tab</kbd> on command line displays choices
 * launch menu from empty command line with <kbd>Tab</kbd> to browse files/directories
 
 for a complete next-gen shell experience, see also this project:
