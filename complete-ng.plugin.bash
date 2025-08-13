@@ -86,9 +86,11 @@ _complete-ng() {
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   printf "\n" >&2
   [ "${#COMPREPLY[@]}" = 0 ] && {
-    set -f
-    IFS=$'\n' COMPREPLY=( $(compgen -f -- "$word") ) IFS=$' \t\n'
-    set +f
+    [ "$fn" ] && {
+      set -f
+      IFS=$'\n' COMPREPLY=( $(compgen -f -- "$word") ) IFS=$' \t\n'
+      set +f
+    }
     [ "${#COMPREPLY[@]}" = 0 ] && {
       printf 'Not found !\r'
       sleep "0.2"
@@ -103,7 +105,7 @@ _complete-ng() {
   longword="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
   [ "$longword" ] || longword="$word"
   set -f
-  COMPREPLY=( "$(SELECTOR_CASEI=$COMPLETE_NG_CASEI selector -m 10 -k _complete-ng_key $selopt -i "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" -F "$longword")" )
+  COMPREPLY=( "$(SELECTOR_CASEI="$COMPLETE_NG_CASEI" selector -m 10 -k _complete-ng_key $selopt -i "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" -F "$longword")" )
   set +f
   #kill -WINCH $$ # force redraw prompt
   tput "cuu1"
