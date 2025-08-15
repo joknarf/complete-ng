@@ -1,4 +1,4 @@
-[![Joknarf Tools](https://img.shields.io/badge/Joknarf%20Tools-Documentation-darkgreen?logo=github)](https://joknarf.github.io/joknarf-tools)
+[![Joknarf Tools](https://img.shields.io/badge/Joknarf%20Tools-Visit-darkgreen?logo=github)](https://joknarf.github.io/joknarf-tools)
 [![bash](https://img.shields.io/badge/shell-bash%20|%20zsh%20-blue.svg)]()
 
 # complete-ng
