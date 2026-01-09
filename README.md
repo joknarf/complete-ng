@@ -3,7 +3,9 @@
 [![Licence](https://img.shields.io/badge/licence-MIT-blue.svg)](https://shields.io/)
 
 # complete-ng
-bash/zsh completion nextgen
+bash/zsh <kbd>Tab</kbd> completion nextgen with interactive/search menu
+
+## features
 
 * replace bash/zsh completion multiple choices output by interactive selector menu
 * browse directories inside the menu
@@ -11,26 +13,27 @@ bash/zsh completion nextgen
 * single <kbd>Tab</kbd> on command line displays choices
 * launch menu from empty command line with <kbd>Tab</kbd> to browse files/directories
 
-for a complete next-gen shell experience, see also this project:
+## install
 
-* [joknarf/shell-ng](https://github.com/joknarf/shell-ng):
-  * auto-transportable dynamic PS1 prompt (you can see it in the demo)
-  * completion nextgen (this plugin)
-  * replacement of shell history command search (<kbd>Ctrl</kbd><kbd>R</kbd> or <kbd>Esc</kbd><kbd>/</kbd>) with interactive menu
-  *  directory history navigation with arrows + interactive menu
-
-## usage
-
+You can use a shell plugin manager like the famous [thefly](https://github.com/joknarf/thefly) (multi shell plugin/dotfiles manager and teleporter anywhere)
+```
+fly add joknarf/complete-ng
+```
+or just
 ```
 git clone https://github.com/joknarf/complete-ng
-source complete-ng/complete-ng.plugin.bash
-or
-source complete-ng/complete-ng.plugin.zsh
+source complete-ng/complete-ng.plugin.<yourshell>
 ```
 
+for a complete next-gen shell experience, see also this project:
 
+* [joknarf/shell-ng](https://github.com/joknarf/shell-ng) : compilation of joknarf shell plugins which includes
+  * [joknarf/nerdp](https://github.com/joknarf/nerdp) : dynamic PS1 prompt (you can see it in the demo)
+  * [joknarf/complete-ng](https://github.com/joknarf/complete-ng) : Tab completion nextgen (this plugin)
+  * [joknarf/redo](https://github.com/joknarf/redo) : replacement of shell history command search (<kbd>Ctrl</kbd><kbd>R</kbd> or <kbd>Esc</kbd><kbd>/</kbd>) with interactive menu
+  * [joknarf/seedee](https://github.com/joknarf/seedee) :  directory history navigation with arrows + interactive menu
 
-## example
+## demo
 
 ![complete-ng](https://github.com/joknarf/complete-ng/assets/10117818/e8993060-4134-4ab5-8a1f-c2ea6d0d5696)
 
