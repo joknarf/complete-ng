@@ -17,6 +17,7 @@ bash/zsh <kbd>Tab</kbd> completion nextgen with interactive/search menu
 
 * gnu awk (need brew install gawk on macOS)
 * gnu grep (need brew install grep on macOS)
+* bash-completion/zsh-completion
 
 ## install
 
