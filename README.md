@@ -13,6 +13,11 @@ bash/zsh <kbd>Tab</kbd> completion nextgen with interactive/search menu
 * single <kbd>Tab</kbd> on command line displays choices
 * launch menu from empty command line with <kbd>Tab</kbd> to browse files/directories
 
+## pre-requisites
+
+* gnu awk (need brew install gawk on macOS)
+* gnu grep (need brew install grep on macOS)
+
 ## install
 
 You can use a shell plugin manager like the famous [thefly](https://github.com/joknarf/thefly) (multi shell plugin/dotfiles manager and teleporter anywhere)
