@@ -1,6 +1,7 @@
 # complete-ng : bash completion nextgen
 # Author : Franck Jouvanceau
 
+. "$(\cd "${BASH_SOURCE%/*}";pwd)/lib/comphelp"
 declare -F selector >/dev/null 2>&1 || . "$(\cd "${BASH_SOURCE%/*}";pwd)/lib/selector"
 
 #unalias complete 2>/dev/null
@@ -63,7 +64,7 @@ _complete-ng_key() {
 }
 
 _complete-ng() {
-  local cmd="${COMP_WORDS[O]}" fn IFS="$IFS" opt="-f" word="" selopt='-o filenames' longword
+  local cmd="${COMP_WORDS[O]}" fn IFS="$IFS" opt="-f" word="" selopt='-o filenames' longword sortcmd=(sort -u) COMP_SORT=1
   [ "${#COMP_WORDS[@]}" -gt 0 ] && word="${COMP_WORDS[$COMP_CWORD]}"
   fn=$(eval printf '%s' '$'_compfunc_"${cmd//[^a-zA-Z0-9_]/_}")
   [ "$fn" ] || { cmd="${cmd##*/}"; fn=$(eval printf '%s' '$'_compfunc_"${cmd//[^a-zA-Z0-9_]/_}"); }
@@ -73,7 +74,8 @@ _complete-ng() {
         fn=$(eval printf '%s' '$'_compfunc_"${cmd//[^a-zA-Z0-9_]/_}")
     }
   }
-  [ "$fn" ] && { $fn "$@"; } || {
+  [ "$fn" ] && { $fn "$@"; } 
+  (( ${#COMPREPLY[@]} > 0 )) || {
     type "compopt" >/dev/null 2>&1 && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
     [ "$COMP_CWORD" -le 0 ] && [ "$word" ] && opt="-c"
@@ -82,7 +84,8 @@ _complete-ng() {
     IFS=$'\n' COMPREPLY=( $(compgen $opt -- "$word") ) IFS=$' \t\n'
     set +f
   }
-  [ "${#COMPREPLY[@]}" = 1 ] && return
+  [ "${#COMPREPLY[@]}" = 1 ] && COMPREPLY=("${COMPREPLY%%$'\t'*}") && return
+  [ "$COMP_SORT" ] || sortcmd=(cat)
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   printf "\n" >&2
   [ "${#COMPREPLY[@]}" = 0 ] && {
@@ -103,10 +106,11 @@ _complete-ng() {
   }
   type "compopt" &>/dev/null && { [[ $(compopt) = *-o\ filename* ]] || selopt=''; }
   # longest common prefix
-  longword="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
+  longword="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e 's/\t.*//' -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
   [ "$longword" ] || longword="$word"
+  comphelp
   set -f
-  COMPREPLY=( "$(SELECTOR_CASEI="$COMPLETE_NG_CASEI" selector -m 10 -k _complete-ng_key $selopt -i "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" -F "$longword")" )
+  COMPREPLY=( "$(SELECTOR_CASEI="$COMPLETE_NG_CASEI" selector -m 10 -k _complete-ng_key $selopt -i "$(printf "%s\n" "${COMPREPLY[@]}"|"${sortcmd[@]}")" -F "$longword")" )
   set +f
   #kill -WINCH $$ # force redraw prompt
   _tput "cuu1" >&2
