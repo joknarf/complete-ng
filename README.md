@@ -3,11 +3,15 @@
 [![Licence](https://img.shields.io/badge/licence-MIT-blue.svg)](https://shields.io/)
 
 # complete-ng
-bash/zsh <kbd>Tab</kbd> completion nextgen with interactive/search menu
+bash/zsh <kbd>Tab</kbd> completion nextgen with interactive/search menu and parameters description
+
+<img width="1584" height="406" alt="image" src="https://github.com/user-attachments/assets/aa9a23b7-5cad-4862-b4d1-da9ad17ea8ef" />
+
 
 ## features
 
 * replace bash/zsh completion multiple choices output by interactive selector menu
+* display parameters help description 
 * browse directories inside the menu
 * view/edit files directly from the menu
 * single <kbd>Tab</kbd> on command line displays choices
