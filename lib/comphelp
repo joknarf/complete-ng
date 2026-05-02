@@ -1,6 +1,9 @@
+declare -A _git_help _puppet_help 2>/dev/null || {
+  # not supported
+  comphelp() { :; }
+  return
+}
 type gawk >/dev/null 2>&1 && _comp_awk=gawk || _comp_awk=awk
-declare -A _git_help
-declare -A _puppet_help
 
 _git_cmd_help() {
   typeset k v
