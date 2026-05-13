@@ -2,7 +2,7 @@
 # Author : Franck Jouvanceau
 
 . "$(\cd "${BASH_SOURCE%/*}";pwd)/lib/comphelp"
-declare -F selector >/dev/null 2>&1 || . "$(\cd "${BASH_SOURCE%/*}";pwd)/selector"
+declare -F selector >/dev/null 2>&1 || . "$(\cd "${BASH_SOURCE%/*}";pwd)/lib/selector"
 
 #unalias complete 2>/dev/null
 #alias complete=complete-ng
