@@ -7,6 +7,7 @@ type selector >/dev/null 2>&1 || . "$(\cd "${0%/*}";pwd)/lib/selector"
 # use a whitespace char or anchors don't work
 
 _COMPLETE_NG_SEP=$'\u00a0'
+#_COMPLETE_NG_SEP=$'\t'
 _COMPLETE_NG_SPACE_SEP=$'\v'
 _COMPLETE_NG_NONSPACE=$'\u00ad'
 _COMPLETE_NG_FLAGS=( a k f q Q e n U l 1 2 C )
@@ -143,7 +144,6 @@ _complete_ng() {
         __value="$(_complete_ng_selector "$__code" <&p)"
         __code="$?"
         kill -- -"$coproc_pid" 2>/dev/null && wait "$coproc_pid"
-
         printf "__code='%s'; __value='%s'\\n" "${__code//'/'\''}" "${__value//'/'\''}"
         printf '%s\n' ": $_com_sentinel1$_com_sentinel2"
     ) | sed -un "/$_com_sentinel1$_com_sentinel2/q; p"
@@ -153,23 +153,11 @@ _complete_ng() {
     case "$__code" in
         0)
             local opts= index= value o=()
-            while IFS="$_COMPLETE_NG_SEP" read -r -A value; do
-                if (( !__code && ${#value[@]} >= 3 )); then
-                    index="${value[3]}"
-                    PREFIX=""
-                    eval "opts=( ${__compadd_args[$index]} )"
-                    for ((i = 1; i <= $#opts; i++)); do
-                        [[ "${opts[$i]}" = (-s|-S|-J|-F|-M) ]] && o+=( "${opts[$i]}" "${opts[$i+1]}" ) && continue
-                        [[ "${opts[$i]}" = (-f|-q|-Qf|-l|-U) ]] && o+=( "${opts[$i]}" ) && continue
-                        [[ "${opts[$i]}" = (-W) ]] && o+=( "-S" "") && continue
-                    done
-                    value=( "${value[2]}" )
-                    SUFFIX= ISUFFIX= compadd "${o[@]}" -a value
-                    #value=( "${(Q)value[2]}" )
-                    # eval "$opts -a value"
-                fi
-            done <<<"$__value"
-            # insert everything added by fzf
+            IFS="$_COMPLETE_NG_SEP" read -r -A value <<<"$__value"
+            index="${value[3]}"
+            [ "$index" = 100 ] && opts="PREFIX= IPREFIX= SUFFIX= ISUFFIX= compadd -Qf -W '' -J -default- -M r:\|/=\*\ r:\|=\* -i '' -p '' -s '' -U" || opts="${__compadd_args[$index]}"
+            value=("${(Q)value[2]}")
+            eval "$opts -a value"
             compstate[insert]=all
             ;;
         1)
@@ -212,7 +200,7 @@ _complete_ng_selector() {
             if IFS= read -r; then
                 lines+=( "$REPLY" )
             elif (( ${#lines[@]} == 1 )); then # only one input
-                #printf %s\\n "${lines[1]}" && return
+                printf %s\\n "${lines[1]}" && return
                 break
             else # no input
                 return 1
@@ -224,36 +212,38 @@ _complete_ng_selector() {
         fi
     done
 
-
-    local all_lines items longword selected s nbitems
-    all_lines=$( (( ${#lines[@]} )) && printf %s\\n "${lines[@]}"; cat)
-    items="$(printf %s "$all_lines"|sed -e "s/$_COMPLETE_NG_SEP.*//")" # -e "s/[\\']//g")"
-    set -f
-    eval "items=( $items )"
-    set +f
-    nbitems="${#items[@]}"
-    items="${(F)items[@]}" # separated by newlines
-    if (( nbitems > 1 )); then
-        _tput cud1 >/dev/tty
-        longword="$(printf "%s\n" "${items}"|sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
-        selected="$(SELECTOR_CASEI="$COMPLETE_NG_CASEI" selector -m 10 -k _complete-ng_key -i "$items" -o filenames -F "$longword")"
+    local item items longword selected s n
+    IFS=$'\n' lines+=($(cat)); IFS=$' \t\n'
+    declare -A values
+    items=()
+    for ((i=1;i<=${#lines[@]};i++))
+    do
+        IFS="$_COMPLETE_NG_SEP" read -r -A value <<<"${lines[i]}"
+        item="${value[5]}"
+        values[$item]=$i
+        [ "${value[4]}" ] && item+=$'\t'"${value[4]#*  -- }"
+        items[i]="$item"
+    done
+    if (( ${#items[@]} > 1 )) ;then
+        printf $'\n' >/dev/tty
+        longword="$(sed -e 's/\t.*//' -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}' <<<"${(F)items}")"
+        SELECTOR_CASEI="$COMPLETE_NG_CASEI" selector -m 10 -k _complete-ng_key -i "${(F)items}" -o filenames -F "$longword" >/dev/null
         code="$?"
         _tput cuu1 >/dev/tty
+        [ ! "$selected" ] && [ "$longword" != "$PREFIX" ] && code="0" && selected="$longword"
     else
-       selected="$items"
-       code="0"
+        selected="${items%%$'\t'*}"
+        code="0"
     fi
-    [ ! "$selected" ] && [ "$longword" != "$PREFIX" ] && code="0" && selected="$longword"
-    s="${selected}"
-    #[[ "$PREFIX" != ..* ]] && s="${selected#${PREFIX%/*}/}"
-    # s="${s%/}"
-    #s="$(printf '%q' "$(printf '%q' "$s")")"
-    s="$(printf '%q' "${(Q)s}")"
-    # s="${s/#\\\\~\//~/}"
-    s="${s/#\\~\//~/}"	
-    selected="$(printf '%q' "${(Q)selected}")"
-    [ "$selected" ] && printf '%s\n' "$selected$_COMPLETE_NG_SEP$s${_COMPLETE_NG_SEP}1$_COMPLETE_NG_SEP$selected$_COMPLETE_NG_SPACE_SEP"
-    return "$code"
+    [ "$code" = 0 ] || return $code
+    n="${values[$selected]}"
+    [ "$n" ] && line="${lines[$n]}}" || {
+        s="$(printf '%q' "${(q)selected}")"
+        s="${s/#\\\\~\//~/}"
+        line="${(q)selected}${_COMPLETE_NG_SEP}$s${_COMPLETE_NG_SEP}100${_COMPLETE_NG_SEP}"
+    }
+    printf %s "$line"
+    return 0
 }
 _complete-ng_navigate() {
   local dir="$1" IFS="$IFS"
@@ -305,6 +295,10 @@ _complete-ng_key() {
       _tput civis
       return 0
     ;;
+    '[19~'|$'\x04'|'[3~') # F8 Ctl-D Del
+      [[ $_COMPLETE_NG_CONTEXT = *:_fly,ssh* ]] && COMP_DELFUNC=_fly_hist_del
+      [ "$COMP_DELFUNC" ] && $COMP_DELFUNC "${item%%$'\t'*}"
+    ;;
   esac
   return 2
 }
@@ -316,6 +310,7 @@ _complete_ng_zstyle() {
 }
 
 _complete_ng_compadd() {
+    [ -v "COMPADD_ARGS" ] && set -- "${COMPADD_ARGS[@]}" "$@"
     local __flags=()
     local __OAD=()
     local __disp __hits __ipre __apre __hpre __hsuf __asuf __isuf __opts __optskv
@@ -324,7 +319,6 @@ _complete_ng_compadd() {
     local __noquote="${__flags[(r)-Q]}"
     local __is_param="${__flags[(r)-e]}"
     local __no_matching="${__flags[(r)-U]}"
-
     if [ -n "${__optskv[(i)-A]}${__optskv[(i)-O]}${__optskv[(i)-D]}" ]; then
         # handle -O -A -D
         builtin compadd "${__flags[@]}" "${__opts[@]}" "${__ipre[@]}" "${__hpre[@]}" -- "$@"
@@ -341,13 +335,11 @@ _complete_ng_compadd() {
     builtin compadd $__no_matching -a __hits
     local __code="$?"
     __flags="${(j..)__flags//[ak-]}"
-    if [ -z "${__optskv[(i)-U]}" ] && [[ -n "$__filenames" ]]; then
+    if [ -z "${__optskv[(i)-U]}" ]; then
         # -U ignores $IPREFIX so add it to -i
-        # FJO only filenames / set PREFIX to get full path
-        # __ipre[2]="${IPREFIX}${__ipre[2]}"
-        # __ipre=( -i "${__ipre[2]}" )
-        PREFIX="${__optskv[-W]:-.}"
-        # IPREFIX=
+        __ipre[2]="${IPREFIX}${__ipre[2]}"
+        __ipre=( -i "${__ipre[2]}" )
+        IPREFIX=
     fi
     local compadd_args="$(printf '%q ' PREFIX="$PREFIX" IPREFIX="$IPREFIX" SUFFIX="$SUFFIX" ISUFFIX="$ISUFFIX" compadd ${__flags:+-$__flags} "${__opts[@]}" "${__ipre[@]}" "${__apre[@]}" "${__hpre[@]}" "${__hsuf[@]}" "${__asuf[@]}" "${__isuf[@]}" -U)"
     printf "__compadd_args+=( '%s' )\n" "${compadd_args//'/'\\''}" >&"${__evaled}"
@@ -357,12 +349,10 @@ _complete_ng_compadd() {
     local __disp_str __hit_str __show_str __real_str __suffix
 
     local prefix="${IPREFIX}${__ipre[2]}${__apre[2]}${__hpre[2]}"
-    # FJO no suffix 
     local suffix="${__hsuf[2]}${__asuf[2]}${__isuf[2]}"
-    # if [ -n "$__is_param" -a "$prefix" = '${' -a -z "$suffix" ]; then
-    #     suffix+=}
-    # fi
-    suffix=""
+    if [ -n "$__is_param" -a "$prefix" = '${' -a -z "$suffix" ]; then
+        suffix+=}
+    fi
     local i
     for ((i = 1; i <= $#__hits; i++)); do
         # actual match
@@ -382,16 +372,16 @@ _complete_ng_compadd() {
         if [[ -n "$__filenames" && -n "$__show_str" && -d "${file_prefix}/${__show_str}" ]]; then
             __show_str+=/
             __suffix+=/
-            # prefix="${file_prefix}"
+            #prefix="${file_prefix}"
         fi
 
-        # if [[ -z "$__disp_str" || "$__disp_str" == "$__show_str"* ]]; then
-        #     # remove prefix from display string
-        #     __disp_str="${__disp_str:${#__show_str}}"
-        # else
-        #     # display string does not match, clear it
-        #     __show_str=
-        # fi
+        if [[ -z "$__disp_str" || "$__disp_str" == "$__show_str"* ]]; then
+            # remove prefix from display string
+            __disp_str="${__disp_str:${#__show_str}}"
+        else
+            # display string does not match, clear it
+            __show_str=
+        fi
 
         if [[ "$__show_str" =~ [^[:print:]] ]]; then
             __show_str="${(q)__show_str}"
@@ -404,23 +394,24 @@ _complete_ng_compadd() {
             __show_str="$__disp_str"
             __disp_str=
         elif (( ! _COMPLETE_NG_SEARCH_DISPLAY )); then
-            __disp_str="$__disp_str"$'\x1b[0m'
+            __disp_str="$__disp_str"
         fi
 
-        if [[ "$__show_str" == "$PREFIX"* ]]; then
-            __show_str="${__show_str:${#PREFIX}}${_COMPLETE_NG_SPACE_SEP}${PREFIX}"$'\x1b[0m'
-        else
-            __show_str+="${_COMPLETE_NG_SEP}"
-        fi
+        #if [[ "$__show_str" == "$PREFIX"* ]]; then
+        #    __show_str="${__show_str:${#PREFIX}}${_COMPLETE_NG_SPACE_SEP}${PREFIX}"
+        #else
+        #    __show_str+="${_COMPLETE_NG_SEP}"
+        #fi
+        __show_str+="${_COMPLETE_NG_SEP}"
 
         # fullvalue, value, index, display, show, prefix
-        printf %s\\n "${(q)prefix}${(q)__real_str}${(q)__suffix}${_COMPLETE_NG_SEP}${(q)__hit_str}${_COMPLETE_NG_SEP}${__comp_index}${_COMPLETE_NG_SEP}${__disp_str}${_COMPLETE_NG_SEP}${__show_str}${_COMPLETE_NG_SPACE_SEP}" >&"${__stdout}"
+        printf %s\\n "${(q)prefix}${(q)__real_str}${(q)__suffix}${_COMPLETE_NG_SEP}${(q)__hit_str}${_COMPLETE_NG_SEP}${__comp_index}${_COMPLETE_NG_SEP}${__disp_str}${_COMPLETE_NG_SEP}${(Q)prefix}${__show_str}${_COMPLETE_NG_SPACE_SEP}" >&"${__stdout}"
     done
     return "$__code"
 }
 
-#zle -C _complete_ng complete-word _complete_ng
-zle -C _complete_ng expand-or-complete _complete_ng
+zle -C _complete_ng complete-word _complete_ng
+#zle -C _complete_ng expand-or-complete _complete_ng
 zle -N complete_ng
 fzf_default_completion=complete_ng
 bindkey '^I' complete_ng
