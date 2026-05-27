@@ -1,0 +1,188 @@
+#!/usr/bin/gawk -f
+
+# Generic help parser for Linux / GNU / BSD / Git / common CLIs
+#
+# Output:
+# option<TAB>arg, description
+#
+# Examples:
+#   -f, --file FILE        use file
+# => -f          FILE, use file
+# => --file      FILE, use file
+#
+#   --color[=WHEN]        colorize output
+# => --color      [=WHEN], colorize output
+#
+# usage:
+#   cmd --help 2>&1 | gawk -f parse-help.awk
+
+function trim(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+    return s
+}
+
+function normalize_spaces(s) {
+    gsub(/[[:space:]]+/, " ", s)
+    return trim(s)
+}
+
+function split_optarg(s,    m,opt,arg) {
+    s = trim(s)
+    opt = s
+    arg = ""
+
+    # --[no-]name=ARG
+    if (match(s, /^(--\[[^]]+\][^ =\t]*)(=.*)$/, m)) {
+        opt = m[1]
+        arg = m[2]
+    }
+
+    # --name[=ARG]
+    else if (match(s, /^(--[^ =\t]+)(\[=.*\])$/, m)) {
+        opt = m[1]
+        arg = m[2]
+    }
+
+    # --name=ARG
+    else if (match(s, /^(--[^ =\t]+)(=.*)$/, m)) {
+        opt = m[1]
+        arg = m[2]
+    }
+
+    # --name ARG...
+    else if (match(s, /^(--[^[:space:]]+)[[:space:]]+(.+)$/, m)) {
+        opt = m[1]
+        arg = m[2]
+    }
+
+    # -xARG   (short compact)
+    else if (match(s, /^(-[[:alnum:]])(.+)$/, m) && s !~ /^-[[:alnum:]]$/) {
+        opt = m[1]
+        arg = m[2]
+    }
+
+    # -x ARG...
+    else if (match(s, /^(-[[:alnum:]])[[:space:]]+(.+)$/, m)) {
+        opt = m[1]
+        arg = m[2]
+    }
+
+    opt = trim(opt)
+    arg = normalize_spaces(arg)
+
+    RET_OPT = opt
+    RET_ARG = arg
+}
+
+function print_pair(opt, arg, desc, txt) {
+    if (opt == "")
+        return
+
+    txt = desc
+
+    if (arg != "") {
+        if (txt != "")
+            txt = arg ", " txt
+        else
+            txt = arg
+    }
+    if (! opts)
+      print opt "\t" txt
+    if (opt in a_opts)
+      print a_opts[opt] "\t" txt
+}
+
+function emit(opt, desc, a, b) {
+    opt = trim(opt)
+
+    # expand --[no-]foo
+    if (opt ~ /\[no-\]/) {
+        a = opt
+        gsub(/\[no-\]/, "", a)
+        split_optarg(a)
+        print_pair(RET_OPT, RET_ARG, desc)
+
+        b = opt
+        sub(/\[no-\]/, "no-", b)
+        split_optarg(b)
+        print_pair(RET_OPT, RET_ARG, desc)
+    } else {
+        split_optarg(opt)
+        print_pair(RET_OPT, RET_ARG, desc)
+    }
+}
+
+function flush(   i,n) {
+    if (!pending)
+        return
+
+    desc = normalize_spaces(desc)
+
+    n = split(optblock, arr, /,[[:space:]]*/)
+
+    for (i = 1; i <= n; i++)
+        emit(arr[i], desc)
+
+    pending = 0
+    optblock = ""
+    desc = ""
+}
+
+BEGIN {
+    pending = 0
+}
+
+NR==1 {
+    split(opts, t)
+    for(i in t) a_opts[gensub("=$","",1,t[i])] = t[i]
+}
+
+########################################################################
+# Detect option lines:
+#   -a ...
+#   --all ...
+#   -a, --all ...
+########################################################################
+/^[[:space:]]+-[^-[:space:]]/ || /^[[:space:]]+--[^[:space:]]/ {
+
+    flush()
+
+    line = $0
+    sub(/^[[:space:]]+/, "", line)
+
+    # split first large whitespace block (2+ spaces or tab)
+    if (match(line, /([[:space:]]{2,}|\t+)/)) {
+        optblock = substr(line, 1, RSTART - 1)
+        desc     = substr(line, RSTART + RLENGTH)
+    } else {
+        optblock = line
+        desc = ""
+    }
+
+    pending = 1
+    next
+}
+
+########################################################################
+# Continuation description lines
+########################################################################
+pending && /^[[:space:]]+/ {
+
+    line = trim($0)
+
+    # ignore section headers like "Options:"
+    if (line ~ /^[[:alpha:]][[:alnum:] _-]*:?[[:space:]]*$/)
+        next
+
+    if (desc != "")
+        desc = desc " " line
+    else
+        desc = line
+
+    next
+}
+
+END {
+    flush()
+}
+
