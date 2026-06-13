@@ -24,7 +24,8 @@ _complete-ng_key() {
 
 _complete-ng() {
   local cmd="${COMP_WORDS[O]#\\}" fn IFS="$IFS" opt="-f" word="" selopt=(-o filenames) longword sortcmd=(sort -u) COMP_SORT=1 COMP_DELFUNC='' row col selected compgen_opt='-f'
-  [ "${#COMP_WORDS[@]}" -gt 0 ] && word="${COMP_WORDS[$COMP_CWORD]}"
+  ((${#COMP_WORDS[@]} > 0)) && word="${COMP_WORDS[$COMP_CWORD]}"
+  ((COMP_CWORD==0)) && opt="-c" && [[ $cmd != [./]* ]] && selopt=() # complete command
   fn=$(eval printf '%s' '$'_compfunc_"${cmd//[^a-zA-Z0-9_]/_}")
   [ "$fn" ] || { cmd="${cmd##*/}"; fn=$(eval printf '%s' '$'_compfunc_"${cmd//[^a-zA-Z0-9_]/_}"); }
   [ "$fn" ] || {
@@ -36,10 +37,9 @@ _complete-ng() {
   declare -F "__${cmd}_format_comp_descriptions" >/dev/null && eval "__${cmd}_format_comp_descriptions"'() { :; }'
   [ "$cmd" = 'cd' ] && compgen_opt='-d' && selopt=(-o dirnames)
   [ "$fn" ] && $fn "$@"
-  (( ${#COMPREPLY[@]} > 0 )) || {
+  ((${#COMPREPLY[@]} > 0)) || {
     type "compopt" >/dev/null 2>&1 && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
-    [ "$COMP_CWORD" -le 0 ] && [ "$word" ] && opt="-c"
     _arrayread COMPREPLY <<<"$(compgen $opt -- "$word")"
   }
   [ "${#COMPREPLY[@]}" = 1 ] && COMPREPLY=("${COMPREPLY%%$'\t'*}") && return
@@ -62,6 +62,7 @@ _complete-ng() {
     }
   }
   type "compopt" &>/dev/null && { [[ $(compopt) = *-o\ filename* ]] || selopt=(); }
+  ((COMP_CWORD==-1)) && compopt +o filenames # -1 empty command
   # longest common prefix
   longword="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e 's/\t.*//' -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
   [ "$longword" ] || longword="$word"
